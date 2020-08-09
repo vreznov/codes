@@ -65,3 +65,41 @@ QStringList mg::Match2(QString fml_pattern, const QString &fml_str)
 
     return sret;
 }
+
+bool mg::QuickWriteFile(QString fml_ffn, QString fml_s, QIODevice::OpenMode fml_flag)
+{
+    QFile file(fml_ffn);
+    if(!file.open(fml_flag)) { return false; }
+    file.write(fml_s.toUtf8());
+    file.close();
+
+    return true;
+}
+
+QString mg::winExecute(QString fml_batFile)
+{
+    QProcess proc;
+    proc.execute(fml_batFile);
+
+    QString sresult = QString::fromLocal8Bit(proc.readAllStandardOutput());
+    qDebug() << sresult;
+
+    return sresult;
+}
+
+QString mg::winCmd(QString fml_cmd)
+{
+    QProcess proc;
+    proc.setReadChannel(QProcess::StandardOutput);
+
+    // ?不起作用
+    QObject::connect(&proc, &QProcess::readyReadStandardOutput, [&]() {
+        QString sresult = QString::fromLocal8Bit(proc.readAllStandardOutput());
+        qDebug() << sresult;
+    });
+    proc.execute("cmd", QStringList() << "/c" << fml_cmd);
+//    QString sresult = QString::fromLocal8Bit(proc.readAllStandardOutput());
+//    qDebug() << sresult;
+
+    return "sresult";
+}
